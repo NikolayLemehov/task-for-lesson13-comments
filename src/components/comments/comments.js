@@ -88,6 +88,7 @@ class Comments {
       this._inputName.value = '';
       this._inputComment.value = '';
     }
+    this._inputName.focus();
   }
 
   _addEvents() {

@@ -1,5 +1,13 @@
 $mainColorBlue = #2AA1FF
 
+html {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  min-height: 100%;
+  height: 100%;
+  color gray
+}
+
 .comment-container
   width 400px
   //border 1px solid red
@@ -30,9 +38,8 @@ $mainColorBlue = #2AA1FF
     border none
     border-radius 7px
     padding 0.5rem
-
-
-
+  &_btn:active
+    box-shadow 0 2px 2px rgba(21, 21, 21, 0.58) inset
 
 .comment-list_item
   display flex
@@ -41,6 +48,9 @@ $mainColorBlue = #2AA1FF
   > *
     flex-grow 1
     margin-top 1rem
+  &_name
+    color $mainColorBlue
+    font-weight bold
   &_message
     padding-bottom 0.5rem
     border-bottom 1px solid gray
