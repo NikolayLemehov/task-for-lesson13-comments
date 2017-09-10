@@ -19,6 +19,9 @@ const itemTemplate = `
       <div class="comment-list_item_message">
         <span>{{comment}}</span>
       </div>
+      <div class="comment-list_item_date">
+        <span>{{date}}</span>
+      </div>
     </div>`;
 
 class Comments {
@@ -32,17 +35,17 @@ class Comments {
         'dolor eaque esse, et ex explicabo fugit inventore, ' +
         'ipsum minus nostrum numquam obcaecati ' +
         'possimus quia quis rem, tenetur vel voluptas?',
-        id: 1
+        id: 88888888888
       },
       {
         name: 'Petya',
         text: 'comment from Petya',
-        id: 2
+        id: 88889888888
       },
       {
         name: 'Vasya',
         text: 'comment from Vasya',
-        id: 3
+        id: 88890888888
       }
     ];
   }
@@ -63,7 +66,8 @@ class Comments {
       let listItem = itemTemplate
         .replace('{{name}}',comment.name)
         .replace('{{comment}}',comment.text)
-        .replace('{{id}}',comment.id);
+        .replace('{{id}}',comment.id)
+        .replace('{{date}}',this._formatIdToDate(comment.id));
 
       listItemsElementString.push(listItem);
     });
@@ -98,6 +102,30 @@ class Comments {
         this._onCommentAdd();
       }
     });
+  }
+
+  // 09.09.2016 in 01:24  1 января 1970
+  _formatIdToDate(millisecond) {
+    const date = new Date(1970, 1, 0, 3, 0, 0, millisecond);
+
+    //let sec = date.getSeconds();
+    //if (sec < 10) sec = '0' + sec;
+
+    let min = date.getMinutes();
+    if (min < 10) min = '0' + min;
+
+    let hh = date.getHours();
+    if (hh < 10) hh = '0' + hh;
+
+    let dd = date.getDate();
+    if (dd < 10) dd = '0' + dd;
+
+    let mm = date.getMonth();
+    if (mm < 10) mm = '0' + mm;
+
+    let yyyy = date.getFullYear();
+
+    return dd + '.' + mm + '.' + yyyy + ' in ' + hh + ':' + min;
   }
 
   init() {
