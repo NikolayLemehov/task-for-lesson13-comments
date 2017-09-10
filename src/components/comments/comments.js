@@ -4,7 +4,7 @@ const template = `
   <div class="comment-list_header">
     <div class="input-group">
       <input type="text" class="input-group_input-name" placeholder="Name" autofocus>
-      <input type="text" class="input-group_input-comment" placeholder="Comment">
+      <textarea class="input-group_input-comment" placeholder="Comment" rows="7"></textarea>
       <button class="input-group_btn">Add comment</button>
     </div>
   </div>
