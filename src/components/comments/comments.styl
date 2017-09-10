@@ -1,0 +1,46 @@
+$mainColorBlue = #2AA1FF
+
+.comment-container
+  width 400px
+  //border 1px solid red
+  margin 0 auto
+
+.input-group
+  display flex
+  flex-direction column
+  > *
+    margin-top 1rem
+  &_input-name
+    border 3px solid gray
+    border-radius 7px
+    padding 0.5rem
+  &_input-name:focus, &_input-comment:focus, &_btn:focus
+    outline: -webkit-focus-ring-color auto 0px;
+    outline-color: -webkit-focus-ring-color;
+    outline-style: auto;
+    outline-width: 0px;
+  &_input-comment
+    border 3px solid $mainColorBlue
+    border-radius 7px
+    padding 0.5rem
+  &_btn
+    background-color $mainColorBlue
+    color white
+    text-align center
+    border none
+    border-radius 7px
+    padding 0.5rem
+
+
+
+
+.comment-list_item
+  display flex
+  flex-direction column
+  margin-top 2rem
+  > *
+    flex-grow 1
+    margin-top 1rem
+  &_message
+    padding-bottom 0.5rem
+    border-bottom 1px solid gray
