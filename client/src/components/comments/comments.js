@@ -1,3 +1,4 @@
+import { Api } from "../../api/api";
 import './comments.styl'
 
 const template = `
@@ -12,7 +13,6 @@ const template = `
 
   </div>`;
 const itemTemplate = `
-    <div class="comment-list_item" id="{{id}}">
       <div class="comment-list_item_name">
         <span>{{name}}</span>
       </div>
@@ -21,33 +21,45 @@ const itemTemplate = `
       </div>
       <div class="comment-list_item_date">
         <span>{{date}}</span>
-      </div>
-    </div>`;
+      </div>`;
 
 class Comments {
+  static get baseUrl() {
+    return 'http://localhost:4001/comments'
+  }
+
   constructor(selector) {
     this._rootElement = document.querySelector(selector);
-    this._comments = [
-      {
-        name: 'Vanya',
-        text: 'comment from Vanya Lorem ipsum dolor ' +
-        'sit amet, consectetur adipisicing elit. Ad corporis ' +
-        'dolor eaque esse, et ex explicabo fugit inventore, ' +
-        'ipsum minus nostrum numquam obcaecati ' +
-        'possimus quia quis rem, tenetur vel voluptas?',
-        id: 88888888888
-      },
-      {
-        name: 'Petya',
-        text: 'comment from Petya',
-        id: 88889888888
-      },
-      {
-        name: 'Vasya',
-        text: 'comment from Vasya',
-        id: 88890888888
-      }
-    ];
+    this._comments = [];
+
+    Api.get(Comments.baseUrl, (response) => {
+
+      this._comments = response;
+      this._renderList();
+    }, () => {
+      this._rootElement.style.background = 'red';
+    })
+  }
+
+  _renderOne(comment) {
+    const newListItemWrapper = document.createElement('div');
+    newListItemWrapper.classList.add('comment-list_item');
+    newListItemWrapper.id = comment.id;
+    newListItemWrapper.innerHTML = itemTemplate
+      .replace('{{name}}',comment.author)
+      .replace('{{comment}}',comment.text)
+      .replace('{{date}}',comment.date);
+
+    return newListItemWrapper;
+  }
+
+  _renderList() {
+    let listItemsFragment = document.createDocumentFragment();
+    this._comments.forEach((comment) => {
+      listItemsFragment.appendChild(this._renderOne(comment));
+    });
+    this._content.innerHTML = '';
+    this._content.appendChild(listItemsFragment);
   }
 
   _renderStatic() {
@@ -59,31 +71,18 @@ class Comments {
     this._renderList();
   }
 
-  _renderList() {
-    let listItemsElementString = [];
-
-    this._comments.forEach((comment) => {
-      let listItem = itemTemplate
-        .replace('{{name}}',comment.name)
-        .replace('{{comment}}',comment.text)
-        .replace('{{id}}',comment.id)
-        .replace('{{date}}',this._formatIdToDate(comment.id));
-
-      listItemsElementString.push(listItem);
-    });
-
-    this._content.innerHTML = listItemsElementString.join('');
-  }
-
   _addComment(textName, textComment) {
-    const newTaskItem = {
-      name: textName,
+    const newCommentItem = {
+      author: textName,
       text: textComment,
-      id: Date.now()
     };
-
-    this._comments.push(newTaskItem);
-    this._renderList();
+    Api.post(Comments.baseUrl, newCommentItem, (response) => {
+      const lastItem = response[response.length - 1];
+      const newListItem = this._renderOne(lastItem);
+      this._content.appendChild(newListItem);
+    }, (e) => {
+      throw  new Error(e);
+    })
   }
 
   _onCommentAdd() {
@@ -105,7 +104,7 @@ class Comments {
   }
 
   // 09.09.2016 in 01:24  1 января 1970
-  _formatIdToDate(millisecond) {
+  /*_formatIdToDate(millisecond) {
     const date = new Date(1970, 1, 0, 3, 0, 0, millisecond);
 
     //let sec = date.getSeconds();
@@ -126,7 +125,7 @@ class Comments {
     let yyyy = date.getFullYear();
 
     return dd + '.' + mm + '.' + yyyy + ' in ' + hh + ':' + min;
-  }
+  }*/
 
   init() {
     this._renderStatic();
