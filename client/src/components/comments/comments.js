@@ -1,4 +1,4 @@
-import { Api } from "../../api/api";
+import {Api} from "../../api/api";
 import './comments.styl'
 
 const template = `
@@ -21,6 +21,9 @@ const itemTemplate = `
       </div>
       <div class="comment-list_item_date">
         <span>{{date}}</span>
+      </div>
+      <div class="comment-list_btn-delete">
+        <button data-action="delete">X</button>
       </div>`;
 
 class Comments {
@@ -29,82 +32,98 @@ class Comments {
   }
 
   constructor(selector) {
-    this._rootElement = document.querySelector(selector);
+    this._rootElement = $(selector);
     this._comments = [];
 
     Api.get(Comments.baseUrl, (response) => {
-
       this._comments = response;
       this._renderList();
-    }, () => {
-      this._rootElement.style.background = 'red';
+    // }, () => {
+    //   this._rootElement.style.background = 'red';
     })
   }
 
-  _renderOne(comment) {
-    const newListItemWrapper = document.createElement('div');
-    newListItemWrapper.classList.add('comment-list_item');
-    newListItemWrapper.id = comment.id;
-    newListItemWrapper.innerHTML = itemTemplate
-      .replace('{{name}}',comment.author)
-      .replace('{{comment}}',comment.text)
-      .replace('{{date}}',comment.date);
-
-    return newListItemWrapper;
+  _renderOne(comment, i) {
+    const appearDelay = 150 * i;
+    const content = itemTemplate.replace('{{name}}', comment.author)
+      .replace('{{comment}}', comment.text)
+      .replace('{{date}}', comment.date);
+    let time = +comment.date;
+    return $('<div class="comment-list_item">')
+      .attr('id', comment.id)
+      .html(content)
+      .hide()
+      .delay(appearDelay)
+      .fadeIn();
   }
 
   _renderList() {
-    let listItemsFragment = document.createDocumentFragment();
-    this._comments.forEach((comment) => {
-      listItemsFragment.appendChild(this._renderOne(comment));
+    this._content.html('');
+    this._comments.forEach((comment, i) => {
+      this._content.append(this._renderOne(comment, i));
     });
-    this._content.innerHTML = '';
-    this._content.appendChild(listItemsFragment);
   }
 
   _renderStatic() {
-    this._rootElement.innerHTML = template;
-    this._content = this._rootElement.querySelector('.comment-list_content');
-    this._addBtn = this._rootElement.querySelector('.input-group_btn');
-    this._inputName = this._rootElement.querySelector('.input-group_input-name');
-    this._inputComment = this._rootElement.querySelector('.input-group_input-comment');
+    this._rootElement.html(template);
+    this._content = this._rootElement.find('.comment-list_content');
+    this._addBtn = this._rootElement.find('.input-group_btn');
+    this._inputName = this._rootElement.find('.input-group_input-name');
+    this._inputComment = this._rootElement.find('.input-group_input-comment');
     this._renderList();
   }
 
   _addComment(textName, textComment) {
     const newCommentItem = {
       author: textName,
-      text: textComment,
+      text: textComment
     };
     Api.post(Comments.baseUrl, newCommentItem, (response) => {
       const lastItem = response[response.length - 1];
       const newListItem = this._renderOne(lastItem);
-      this._content.appendChild(newListItem);
+      this._content.append(newListItem);
     }, (e) => {
       throw  new Error(e);
     })
   }
 
   _onCommentAdd() {
-    if (this._inputName.value && this._inputComment.value) {
-      this._addComment(this._inputName.value, this._inputComment.value);
-      this._inputName.value = '';
-      this._inputComment.value = '';
+    if (this._inputName.val() && this._inputComment.val()) {
+      this._addComment(this._inputName.val(), this._inputComment.val());
+      this._inputName.val('');
+      this._inputComment.val('');
     }
     this._inputName.focus();
   }
 
+  _deleteComment(id) {
+    const fadeOutTime = 500;
+    Api.delete(Comments.baseUrl+`/${id}`, (resp) => {
+      const targetElement = this._content.find('#'+id);
+      targetElement.fadeOut(fadeOutTime, () =>  targetElement.remove());
+      this._comments = this._comments.filter((item) => {
+        return item.id !== id;
+      });
+    })
+  }
+
   _addEvents() {
-    this._addBtn.addEventListener('click', this._onCommentAdd.bind(this));
-    this._inputComment.addEventListener('keypress', (e) => {
+    $(this._addBtn).click(this._onCommentAdd.bind(this));
+    $(this._inputComment).keypress((e) => {
       if (e.keyCode === 13) {
         this._onCommentAdd();
       }
     });
+    $(this._content).click((e) => {
+      if($(e.target).attr('data-action') === 'delete') {
+        const id = $(e.target).closest('.comment-list_item').attr('id');
+        this._deleteComment(id);
+      }
+    });
   }
 
-  // 09.09.2016 in 01:24  1 января 1970
-  /*_formatIdToDate(millisecond) {
+  // 09.09.2016 in 01:24  1 января 1970 "2017-09-17T21:50:14.016Z"
+  _timeStampToDate(millisecond) {
     const date = new Date(1970, 1, 0, 3, 0, 0, millisecond);
 
     //let sec = date.getSeconds();
@@ -125,7 +144,7 @@ class Comments {
     let yyyy = date.getFullYear();
 
     return dd + '.' + mm + '.' + yyyy + ' in ' + hh + ':' + min;
-  }*/
+  }
 
   init() {
     this._renderStatic();
