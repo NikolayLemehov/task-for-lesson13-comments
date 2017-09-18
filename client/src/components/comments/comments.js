@@ -13,6 +13,9 @@ const template = `
 
   </div>`;
 const itemTemplate = `
+      <div class="comment-list_item_btn-delete">
+        <button data-action="delete">X</button>
+      </div>
       <div class="comment-list_item_name">
         <span>{{name}}</span>
       </div>
@@ -22,9 +25,7 @@ const itemTemplate = `
       <div class="comment-list_item_date">
         <span>{{date}}</span>
       </div>
-      <div class="comment-list_btn-delete">
-        <button data-action="delete">X</button>
-      </div>`;
+`;
 
 class Comments {
   static get baseUrl() {
@@ -48,7 +49,6 @@ class Comments {
     const content = itemTemplate.replace('{{name}}', comment.author)
       .replace('{{comment}}', comment.text)
       .replace('{{date}}', comment.date);
-    let time = +comment.date;
     return $('<div class="comment-list_item">')
       .attr('id', comment.id)
       .html(content)
@@ -120,30 +120,6 @@ class Comments {
         this._deleteComment(id);
       }
     });
-  }
-
-  // 09.09.2016 in 01:24  1 января 1970 "2017-09-17T21:50:14.016Z"
-  _timeStampToDate(millisecond) {
-    const date = new Date(1970, 1, 0, 3, 0, 0, millisecond);
-
-    //let sec = date.getSeconds();
-    //if (sec < 10) sec = '0' + sec;
-
-    let min = date.getMinutes();
-    if (min < 10) min = '0' + min;
-
-    let hh = date.getHours();
-    if (hh < 10) hh = '0' + hh;
-
-    let dd = date.getDate();
-    if (dd < 10) dd = '0' + dd;
-
-    let mm = date.getMonth();
-    if (mm < 10) mm = '0' + mm;
-
-    let yyyy = date.getFullYear();
-
-    return dd + '.' + mm + '.' + yyyy + ' in ' + hh + ':' + min;
   }
 
   init() {
