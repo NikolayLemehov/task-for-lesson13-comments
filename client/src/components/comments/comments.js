@@ -152,4 +152,4 @@ class Comments {
   }
 }
 
-export {Comments};
+//export {Comments};

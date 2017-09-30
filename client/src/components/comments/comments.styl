@@ -49,10 +49,24 @@ html {
   > *
     flex-grow 1
     margin-top 1rem
-  &_name
-    color $mainColorBlue
-    font-weight bold
   &_message
     padding-bottom 0.5rem
   &_date
     text-align right
+  &_head
+    &_name
+      color $mainColorBlue
+      font-weight bold
+      float left
+    &_btn-delete
+      float right
+      button[data-action="delete"]
+        color gray
+        border none
+        background none
+      button[data-action="delete"]:hover
+        background lightgray
+      button[data-action="delete"]:active
+        box-shadow inset 1px 1px 3px rgba(0,0,0,0.5)
+      button[data-action="delete"]:focus
+        outline none
