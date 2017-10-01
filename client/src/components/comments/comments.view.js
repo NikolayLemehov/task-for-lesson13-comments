@@ -7,10 +7,14 @@ const widgetTemplate = `
       <input type="text" class="input-group_input-name" placeholder="Name" autofocus>
       <textarea class="input-group_input-comment" placeholder="Comment" rows="7"></textarea>
       <button class="input-group_btn">Add comment</button>
+      <div class="filter-group">
+        <label class="filter-group_lable" for="filter-group_input-id">Filter Name</label>
+        <input type="text" class="filter-group_input" id="filter-group_input-id">
+        <button class="filter-group_btn">search</button>
+      </div>
     </div>
   </div>
   <div class="comment-list_content">
-
   </div>`;
 const itemTemplate = `
       <div class="comment-list_item_head">
@@ -31,7 +35,8 @@ const itemTemplate = `
 
 const EVENTS = {
   ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT'
+  DELETE_COMMENT: 'DELETE_COMMENT',
+  TO_FILTER_NAME: 'TO_FILTER_NAME'
 };
 
 export class CommentsView extends EventEmitter {
@@ -55,6 +60,7 @@ export class CommentsView extends EventEmitter {
   }
 
   _renderList(comments) {
+    console.log(comments);
     const appearDelay = 100;
     this._widgetLayout.content.html('');
     comments.forEach((comment, i) => {
@@ -71,7 +77,9 @@ export class CommentsView extends EventEmitter {
     this._widgetControls = {
       add: this._rootElement.find('.input-group_btn'),
       inputName: this._rootElement.find('.input-group_input-name'),
-      inputComment: this._rootElement.find('.input-group_input-comment')
+      inputComment: this._rootElement.find('.input-group_input-comment'),
+      inputFilter: this._rootElement.find('.filter-group_input'),
+      filterBtn: this._rootElement.find('.filter-group_btn')
     };
     this._widgetLayout = {
       content: this._rootElement.find('.comment-list_content')
@@ -95,8 +103,19 @@ export class CommentsView extends EventEmitter {
     this.dispatch(this.EVENTS.DELETE_COMMENT, id);
   }
 
+  _toFilterName() {
+    const nameFromFilter = this._widgetControls.inputFilter.val();
+    console.log(nameFromFilter);
+    this.dispatch(this.EVENTS.TO_FILTER_NAME, nameFromFilter);
+}
+
   _addDOMEventsHandler() {
     this._widgetControls.add.on('click', this._addComment.bind(this));
+    this._widgetControls.inputComment.on('keypress', (e)=> {
+      if(e.keyCode === 13) {
+        this._addComment();
+      }
+    });
     this._widgetLayout.content.on('click', (e) => {
       if($(e.target).attr('data-action') === 'delete') {
         const id = $(e.target).closest('.comment-list_item').attr('id');
@@ -104,6 +123,7 @@ export class CommentsView extends EventEmitter {
         this._deleteComment(id);
       }
     });
+    this._widgetControls.filterBtn.on('click', this._toFilterName.bind(this));
   }
 
   _subscribeToModelEvents() {
@@ -113,6 +133,7 @@ export class CommentsView extends EventEmitter {
     });
     this._model.on(this._model.EVENTS.COMMENT_DELETED, (resp) => {
     });
+    this._model.on(this._model.EVENTS.NAME_FILTERED, this._renderList.bind(this));
   }
 
   init() {

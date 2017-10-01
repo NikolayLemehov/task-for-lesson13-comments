@@ -1,15 +1,11 @@
 import {Api} from "../../api/api";
 import {EventEmitter} from "./eventEmitter";
 
-const possibleFilter = {
-  label: 'ALL',
-  value: 'ALL'
-};
-
 export const EVENTS = {
   COMMENT_UPDATED: 'COMMENT_UPDATED',
   COMMENT_ADDED: 'COMMENT_ADDED',
-  COMMENT_DELETED: 'COMMENT_DELETED'
+  COMMENT_DELETED: 'COMMENT_DELETED',
+  NAME_FILTERED: 'NAME_FILTERED'
 };
 
 export class CommentsModel extends EventEmitter {
@@ -26,18 +22,24 @@ export class CommentsModel extends EventEmitter {
     this._controller = controller;
     this._controller.on(this._controller.EVENTS.ADD_COMMENT, this.addComment.bind(this));
     this._controller.on(this._controller.EVENTS.DELETE_COMMENT, (id) => {this.deleteComment(id);});
+    this._controller.on(this._controller.EVENTS.TO_FILTER_NAME, (name) => {this._filterItems(name);});
   };
 
   getComments() {
     Api.get(CommentsModel.baseUrl, (response) => {
       this._comments = response;
-      //const filteredItems = this._filterItems();
       this.dispatch(EVENTS.COMMENT_UPDATED, this._comments);
     })
   }
 
-  _filterItems() {
-    return this._comments;
+  _filterItems(name) {
+    const filteredComments = [];
+    for (let comment of this._comments) {
+      if (comment.author.includes(name)) {
+        filteredComments.push(comment);
+      }
+    }
+    this.dispatch(this.EVENTS.NAME_FILTERED, filteredComments);
   }
 
   /**

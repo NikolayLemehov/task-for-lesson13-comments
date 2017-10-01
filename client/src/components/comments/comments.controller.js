@@ -4,7 +4,8 @@ import {CommentsModel} from "./comments.model";
 
 const EVENTS = {
   ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT'
+  DELETE_COMMENT: 'DELETE_COMMENT',
+  TO_FILTER_NAME: 'TO_FILTER_NAME'
 };
 
 export class CommentsController extends EventEmitter {
@@ -19,7 +20,12 @@ export class CommentsController extends EventEmitter {
     })
     this._view.on(this._view.EVENTS.DELETE_COMMENT, (id) => {
       console.log('DATA AT CONTROLLER DELETE_COMMENT');
-      this.dispatch(this._view.EVENTS.DELETE_COMMENT, id);
+      this.dispatch(this.EVENTS.DELETE_COMMENT, id);
+    })
+    this._view.on(this._view.EVENTS.TO_FILTER_NAME, (nameFromFilter) => {
+      console.log('DATA AT CONTROLLER TO_FILTER_NAME');
+      console.log(nameFromFilter);
+      this.dispatch(this.EVENTS.TO_FILTER_NAME, nameFromFilter);
     })
   }
 }
